@@ -1,4 +1,10 @@
-# V1.0 2019/11/01 Jason Haenlin
+# V1.3 2019/11/01 Jason Haenlin
+
+# Change log
+# V1.0 : Init
+# V1.1 : Add some comments
+# V1.2 : Change functions names (bad namming)
+# V1.3 : Add an other solution in the parse_output
 
 import re
 import subprocess
@@ -8,10 +14,15 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 am_path = 'am'
+
+# Change this file
 file = 'minip1.txt'
+# Adjust the tapes
 tapes = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
          15, 16, 17, 18, 19, 20, 40, 80, 160, 320, 640,
          1280, 2560, 5120, 10240, 20480]
+
+# Go to the main function (go down !)
 
 
 def median_validation(result_tape, median_label='A'):
@@ -23,7 +34,7 @@ def median_validation(result_tape, median_label='A'):
 
 
 def slicing_validation(result_tape, median_label='A', log=False):
-    '''build the slicing world and compare with the result tape'''
+    '''build the slicing word and compare with the result tape'''
     result_tape = "".join(re.split('<|>|_', result_tape))
     l = len(result_tape)
     separator = 1
@@ -57,15 +68,25 @@ def slicing_validation(result_tape, median_label='A', log=False):
     return "".join(tape) == result_tape
 
 
-def parseOutput(output):
+def parse_output(output):
     parser = {
         'result': output.split(' ')[0].split('\n')[2],
         'step': int(output.split(' ')[2])
+        # If it bugs, try this maybe :)
+        # 'result': output.split('\n')[0],
+        # 'step': int(output.split('\n')[1].split(' ')[2])
     }
     return parser
 
 
-def plotTest(results):
+def plot_test(results):
+    """ Plot a list of results
+    Parameters
+    ----------
+    results
+        lists of result appended from
+        nsquare_plot, nlogn_plot, median_test or slicing_test
+    """
     plt.style.use('ggplot')
     plt.title('Complexity')
     for r in results:
@@ -76,7 +97,7 @@ def plotTest(results):
     plt.show()
 
 
-def nsquarePlot(plot_label=None):
+def nsquare_plot(plot_label=None):
     result = {}
     result['word'] = []
     result['step'] = []
@@ -88,7 +109,7 @@ def nsquarePlot(plot_label=None):
     return result
 
 
-def nlognPlot(plot_label=None):
+def nlogn_plot(plot_label=None):
     result = {}
     result['word'] = []
     result['step'] = []
@@ -100,9 +121,18 @@ def nlognPlot(plot_label=None):
     return result
 
 
-def MedianTest(name, median_label='A', plot_label=None):
-    '''Check the median'''
-    '''print T as True and F as False with the lenght to validate the entry'''
+def median_test(name, median_label='A', plot_label=None):
+    """Check the median
+    print T as True and F as False with the lenght to validate the entry
+    Parameters
+    ----------
+    name : str
+        The name of the turing machine
+    median_label : str (default is A)
+         the label of the median
+    plot_label : int, optional
+        the label to plot after the test (default is None)
+    """
     result = {}
     result['history'] = []
     result['word'] = []
@@ -121,7 +151,7 @@ def MedianTest(name, median_label='A', plot_label=None):
             stderr=subprocess.PIPE,
             universal_newlines=True
         )
-        parser = parseOutput(process.stdout)
+        parser = parse_output(process.stdout)
         testRes = median_validation(parser['result'],
                                     median_label=median_label)
         print('T' if testRes else 'F', end='', flush=True)
@@ -135,10 +165,20 @@ def MedianTest(name, median_label='A', plot_label=None):
     return result
 
 
-def slicingTest(name, median_label='A', plot_label=None):
-    '''Test the slicing with a≤b≤c≤d≤a+1'''
-    '''respectively 1, 2, 3 and 4'''
-    '''print T as True and F as False with the lenght to validate the entry'''
+def slicing_test(name, median_label='A', plot_label=None):
+    """Test the slicing with a≤b≤c≤d≤a+1
+    with a, b, c and d respectively 1, 2, 3 and 4
+
+    print T as True and F as False with the lenght to validate the entry
+    Parameters
+    ----------
+    name : str
+        The name of the turing machine
+    median_label : str (default is A)
+         the label of the median
+    plot_label : int, optional
+        the label to plot after the test (default is None)
+    """
     result = {}
     result['history'] = []
     result['word'] = []
@@ -157,7 +197,7 @@ def slicingTest(name, median_label='A', plot_label=None):
             stderr=subprocess.PIPE,
             universal_newlines=True
         )
-        parser = parseOutput(process.stdout)
+        parser = parse_output(process.stdout)
         testRes = slicing_validation(
             parser['result'],
             median_label=median_label)
@@ -175,14 +215,13 @@ def slicingTest(name, median_label='A', plot_label=None):
 if __name__ == "__main__":
     results = []
 
-    # results.append(nsquarePlot())
-    results.append(nlognPlot())
+    # results.append(nsquare_plot())
+    results.append(nlogn_plot())
 
-    # results.append(MedianTest('E1', plot_label='E1 O(n**2)'))
-    # results.append(MedianTest('E2.1', plot_label='E2.1 O(~n**2?)'))
-    results.append(MedianTest('E2.2', plot_label='E2.2 O(nlogn)'))
+    # results.append(median_test('E1', plot_label='E1 O(n**2)'))
+    # results.append(median_test('E2.1', plot_label='E2.1 O(~n**2?)'))
+    # results.append(median_test('E2.2', plot_label='E2.2 O(nlogn)'))
 
-    results.append(slicingTest('E3.1', median_label='Y',
-                               plot_label='E3.1 O(nlogn)'))
+    results.append(slicing_test('E3.1', plot_label='E3.1 O(nlogn)'))
 
-    plotTest(results)
+    plot_test(results)
